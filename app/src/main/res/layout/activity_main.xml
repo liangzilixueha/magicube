@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <SurfaceView
+    <ImageView
         android:id="@+id/preview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -14,13 +14,116 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="0dp" />
 
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardCornerRadius="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview"
+        app:layout_constraintVertical_bias="0.75" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview"
+        app:layout_constraintVertical_bias="0.75" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview"
+        app:layout_constraintVertical_bias="0.75" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview"
+        app:layout_constraintVertical_bias="0.25" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="5dp"
+        android:layout_height="5dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/label"
+        app:layout_constraintEnd_toEndOf="@+id/preview"
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintStart_toStartOf="@+id/preview"
+        app:layout_constraintTop_toTopOf="@+id/preview"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        app:layout_constraintBottom_toTopOf="@+id/btn_take" />
+
     <Button
         android:id="@+id/btn_take"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="调用系统照相机"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sfv_preview" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
