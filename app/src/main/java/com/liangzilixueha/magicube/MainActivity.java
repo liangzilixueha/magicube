@@ -1,66 +1,36 @@
 package com.liangzilixueha.magicube;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.liangzilixueha.magicube.databinding.ActivityMainBinding;
+import com.permissionx.guolindev.PermissionX;
+
+import java.io.File;
+import java.security.Permission;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "csw";
-    private static final int REQUEST_CODE_CAMERA = 1;
+    private static final int START_CAMERA = 1;
+    private static final int START_CLIP = 2;
     private ActivityMainBinding binding;
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_CAMERA) {
-            Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            //bitmap = addPoint(bitmap);
-            binding.preview.setImageBitmap(bitmap);
-            colorIdentify(bitmap, width * height / 2);
-        }
-    }
-
-    private Bitmap addPoint(Bitmap bitmap) {
-        /*在正中间添加白点*/
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int[] pixels = new int[width * height];
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        int point = 0xffffffff;
-        int pointX = width / 2;
-        int pointY = height / 2;
-        pixels[pointY * width + pointX] = point;
-        Bitmap newBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        newBitmap.setPixels(pixels, 0, width, 0, 0, width, height);
-        return newBitmap;
-    }
-
-    private int[] colorIdentify(Bitmap bitmap, int position) {
-        /*识别bitmap最中心的颜色*/
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int[] pixels = new int[width * height];
-        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-        int center = pixels[position / 2];
-        int red = (center & 0x00ff0000) >> 16;
-        int green = (center & 0x0000ff00) >> 8;
-        int blue = (center & 0x000000ff);
-        return new int[]{red, green, blue};
-        /*识别bitmap最中心的颜色*/
-
-    }
+    private File photoFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,20 +38,64 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        binding.btnTake.setOnClickListener(v -> {
-            takePhoto();
+        binding.lLay.setOnClickListener(v -> {
+            gotoCamera();
         });
     }
 
-    private void takePhoto() {
-        try {
-            /*
-            打开相机，保存拍摄图片到相册
-             */
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(intent, REQUEST_CODE_CAMERA);
-        } catch (Exception e) {
-            Log.d(TAG, e.toString());
+    private void gotoCamera() {
+        PermissionX.init(this)
+                .permissions(Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        , Manifest.permission.READ_EXTERNAL_STORAGE
+                        , Manifest.permission.CAMERA)
+                .onForwardToSettings((scope, deniedList) -> {
+                    scope.showForwardToSettingsDialog(deniedList, "请在设置中打开相机权限"
+                            , "确定"
+                            , "取消");
+                })
+                .request((allGranted, grantedList, deniedList) -> {
+                    if (allGranted) {
+                        photoFile = new File(getExternalCacheDir(), "photo.jpg");
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        /*
+                        保存拍下来的照片
+                         */
+                        try {
+                            if (photoFile.exists()) {
+                                photoFile.delete();
+                            }
+                            photoFile.createNewFile();
+                        } catch (Exception e) {
+                            Log.e(TAG, "gotoCamera: " + e);
+                        }
+                        try {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                Uri contentUri = FileProvider.getUriForFile(this
+                                        , "com.liangzilixueha.magicube.fileprovider"
+                                        , photoFile);
+                                intent.putExtra(MediaStore.EXTRA_OUTPUT, contentUri);
+                            } else {
+                                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "gotoCamera: " + e);
+                        }
+                        startActivityForResult(intent, START_CAMERA);
+                    } else {
+                        Toast.makeText(this, "未开启相机权限", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case START_CAMERA:
+                break;
+            case START_CLIP:
+                break;
         }
     }
 }
