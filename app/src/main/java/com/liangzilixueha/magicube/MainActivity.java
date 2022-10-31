@@ -26,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 import com.liangzilixueha.magicube.databinding.ActivityMainBinding;
 import com.permissionx.guolindev.PermissionX;
 
@@ -59,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
                 gotoCamera();
             });
         }
+        if(!Python.isStarted()){
+            Python.start(new AndroidPlatform(this));
+        }
+        Python py = Python.getInstance();
+        py.getModule("hello").callAttr("hello");
     }
 
     private void init() {
