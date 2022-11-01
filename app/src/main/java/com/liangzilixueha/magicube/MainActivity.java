@@ -14,6 +14,7 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
@@ -26,8 +27,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.liangzilixueha.magicube.Solve.Search;
 import com.liangzilixueha.magicube.databinding.ActivityMainBinding;
 import com.permissionx.guolindev.PermissionX;
 
@@ -61,11 +64,20 @@ public class MainActivity extends AppCompatActivity {
                 gotoCamera();
             });
         }
-        if(!Python.isStarted()){
-            Python.start(new AndroidPlatform(this));
-        }
-        Python py = Python.getInstance();
-        py.getModule("hello").callAttr("hello");
+//        if (!Python.isStarted()) {
+//            Python.start(new AndroidPlatform(this));
+//        }
+//        Python py = Python.getInstance();
+        new Thread(() -> {
+            //时间
+            long start = System.currentTimeMillis();
+            String path = "UBRLUFFUBLRUFRLLLRDBDRFDBBUDDBUDDLRFBFLDLBFFRFLRUBRDUU";
+            String rel = Search.solution(path, 60, 5, false);
+            //时间
+            long end = System.currentTimeMillis();
+            Log.d(TAG, "onCreate: " + rel);
+            Log.d(TAG, "onCreate: " + (end - start) + "ms");
+        }).start();
     }
 
     private void init() {

@@ -19,6 +19,11 @@ android {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        python {
+            pip {
+//                install "kociemba==1.2.1"
+            }
+        }
     }
 
     buildTypes {
