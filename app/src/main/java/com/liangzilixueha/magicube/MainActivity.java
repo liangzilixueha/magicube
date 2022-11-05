@@ -27,9 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
+import com.liangzilixueha.magicube.Solve.CoordCube;
 import com.liangzilixueha.magicube.Solve.Search;
 import com.liangzilixueha.magicube.databinding.ActivityMainBinding;
 import com.permissionx.guolindev.PermissionX;
@@ -37,7 +35,9 @@ import com.permissionx.guolindev.PermissionX;
 import java.io.File;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private List<ImageView> imageViews = new ArrayList<>();
     private List<TextView> textViews = new ArrayList<>(54);
+    private Map<Character, Character> 文字转字母 = new HashMap<>();
     private ImageView 选中图片控件;
     private File photoFile;
 
@@ -64,29 +65,53 @@ public class MainActivity extends AppCompatActivity {
                 gotoCamera();
             });
         }
-//        if (!Python.isStarted()) {
-//            Python.start(new AndroidPlatform(this));
-//        }
-//        Python py = Python.getInstance();
+        binding.solve.setOnClickListener(view -> {
+            Log.e(TAG, "求解");
+            String path = 获得待求解字符串();
+            Log.e(TAG, path);
+        });
         new Thread(() -> {
-            //时间
+            new CoordCube();
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             long start = System.currentTimeMillis();
             String path = "UBRLUFFUBLRUFRLLLRDBDRFDBBUDDBUDDLRFBFLDLBFFRFLRUBRDUU";
-            String rel = Search.solution(path, 60, 5, false);
-            //时间
+            String rel = new Search().solution(path, 24, 5, false);
             long end = System.currentTimeMillis();
             Log.d(TAG, "onCreate: " + rel);
             Log.d(TAG, "onCreate: " + (end - start) + "ms");
         }).start();
     }
 
+    private String 获得待求解字符串() {
+        /*
+        按照 U、R、F、D、L、B的顺序，这个是算法的要求
+         */
+        StringBuilder rel = new StringBuilder();
+        for (int i = 0; i < textViews.size(); i++) {
+            rel.append(textViews.get(i).getText());
+        }
+        return rel.toString();
+    }
+
     private void init() {
+        //初始化图片控件，为map填充数据
+        //通过这两个数组也是中心色块的数据来源
+        char[] color = {'U', 'R', 'F', 'D', 'L', 'B'};
+        char[] colortext = {'黄', '红', '蓝', '白', '橙', '绿'};
+        for (int i = 0; i < color.length; i++) {
+            文字转字母.put(colortext[i], color[i]);
+        }
         imageViews.add(binding.uIv);
-        imageViews.add(binding.lIv);
-        imageViews.add(binding.fIv);
         imageViews.add(binding.rIv);
-        imageViews.add(binding.bIv);
+        imageViews.add(binding.fIv);
         imageViews.add(binding.dIv);
+        imageViews.add(binding.lIv);
+        imageViews.add(binding.bIv);
+
 
         textViews.add(binding.u1Tv);
         textViews.add(binding.u2Tv);
@@ -98,15 +123,15 @@ public class MainActivity extends AppCompatActivity {
         textViews.add(binding.u8Tv);
         textViews.add(binding.u9Tv);
 
-        textViews.add(binding.l1Tv);
-        textViews.add(binding.l2Tv);
-        textViews.add(binding.l3Tv);
-        textViews.add(binding.l4Tv);
-        textViews.add(binding.l5Tv);
-        textViews.add(binding.l6Tv);
-        textViews.add(binding.l7Tv);
-        textViews.add(binding.l8Tv);
-        textViews.add(binding.l9Tv);
+        textViews.add(binding.r1Tv);
+        textViews.add(binding.r2Tv);
+        textViews.add(binding.r3Tv);
+        textViews.add(binding.r4Tv);
+        textViews.add(binding.r5Tv);
+        textViews.add(binding.r6Tv);
+        textViews.add(binding.r7Tv);
+        textViews.add(binding.r8Tv);
+        textViews.add(binding.r9Tv);
 
         textViews.add(binding.f1Tv);
         textViews.add(binding.f2Tv);
@@ -118,15 +143,25 @@ public class MainActivity extends AppCompatActivity {
         textViews.add(binding.f8Tv);
         textViews.add(binding.f9Tv);
 
-        textViews.add(binding.r1Tv);
-        textViews.add(binding.r2Tv);
-        textViews.add(binding.r3Tv);
-        textViews.add(binding.r4Tv);
-        textViews.add(binding.r5Tv);
-        textViews.add(binding.r6Tv);
-        textViews.add(binding.r7Tv);
-        textViews.add(binding.r8Tv);
-        textViews.add(binding.r9Tv);
+        textViews.add(binding.d1Tv);
+        textViews.add(binding.d2Tv);
+        textViews.add(binding.d3Tv);
+        textViews.add(binding.d4Tv);
+        textViews.add(binding.d5Tv);
+        textViews.add(binding.d6Tv);
+        textViews.add(binding.d7Tv);
+        textViews.add(binding.d8Tv);
+        textViews.add(binding.d9Tv);
+
+        textViews.add(binding.l1Tv);
+        textViews.add(binding.l2Tv);
+        textViews.add(binding.l3Tv);
+        textViews.add(binding.l4Tv);
+        textViews.add(binding.l5Tv);
+        textViews.add(binding.l6Tv);
+        textViews.add(binding.l7Tv);
+        textViews.add(binding.l8Tv);
+        textViews.add(binding.l9Tv);
 
         textViews.add(binding.b1Tv);
         textViews.add(binding.b2Tv);
@@ -137,16 +172,12 @@ public class MainActivity extends AppCompatActivity {
         textViews.add(binding.b7Tv);
         textViews.add(binding.b8Tv);
         textViews.add(binding.b9Tv);
-
-        textViews.add(binding.d1Tv);
-        textViews.add(binding.d2Tv);
-        textViews.add(binding.d3Tv);
-        textViews.add(binding.d4Tv);
-        textViews.add(binding.d5Tv);
-        textViews.add(binding.d6Tv);
-        textViews.add(binding.d7Tv);
-        textViews.add(binding.d8Tv);
-        textViews.add(binding.d9Tv);
+        //设置默认的中心色块默认的颜色，而且无法改变，不可点击
+        for (int i = 0; i < textViews.size(); i++) {
+            if (i % 9 == 4) {
+                textViews.get(i).setText(colortext[i / 9]);
+            }
+        }
     }
 
     /*
@@ -231,6 +262,10 @@ public class MainActivity extends AppCompatActivity {
         int height = bitmap.getHeight();
         int p = 0;
         for (int i = 0; i < 9; i++) {
+            if (i == 4) {
+                //因为中间的颜色不需要改变，是默认的颜色
+                continue;
+            }
             switch (i) {
                 case 0:
                     p = bitmap.getPixel(width / 6, height / 6);

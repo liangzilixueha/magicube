@@ -135,7 +135,7 @@ public class Search {
 	 *         Error 7: No solution exists for the given maxDepth<br>
 	 *         Error 8: Timeout, no solution within given time
 	 */
-	public static String solution(String facelets, int maxDepth, long timeOut, boolean useSeparator) {
+	public  String solution(String facelets, int maxDepth, long timeOut, boolean useSeparator) {
 		int s;
 		int[] count = new int[6];
 		try {
