@@ -38,6 +38,38 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+//我去！初音未来！
+//_______________#########_______________________
+//______________############_____________________
+//______________#############____________________
+//_____________##__###########___________________
+//____________###__######_#####__________________
+//____________###_#######___####_________________
+//___________###__##########_####________________
+//__________####__###########_####_______________
+//________#####___###########__#####_____________
+//_______######___###_########___#####___________
+//_______#####___###___########___######_________
+//______######___###__###########___######_______
+//_____######___####_##############__######______
+//____#######__#####################_#######_____
+//____#######__##############################____
+//___#######__######_#################_#######___
+//___#######__######_######_#########___######___
+//___#######____##__######___######_____######___
+//___#######________######____#####_____#####____
+//____######________#####_____#####_____####_____
+//_____#####________####______#####_____###______
+//______#####______;###________###______#________
+//________##_______####________####______________
+//________________#####________#####_____________
+//________________#####________#####_____________
+//________________#####________#####_____________
+//________________#####________####______________
+//________________#####________####______________
+//________________#####________####______________
+//________________#####________###_______________
+//初音殿下保佑我！无巴哥专用祈祷！
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,6 +97,10 @@ public class MainActivity extends AppCompatActivity {
                 gotoCamera();
             });
         }
+        binding.colorCalibration.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, ColorCalibration.class);
+            startActivity(intent);
+        });
         binding.solve.setOnClickListener(view -> {
             Log.e(TAG, "求解");
             String path = 获得待求解字符串();
@@ -79,11 +115,12 @@ public class MainActivity extends AppCompatActivity {
             }
             long start = System.currentTimeMillis();
             String path = "UBRLUFFUBLRUFRLLLRDBDRFDBBUDDBUDDLRFBFLDLBFFRFLRUBRDUU";
-            String rel = new Search().solution(path, 24, 5, false);
+            String rel = new Search().solution(path, 24, 10, false);
             long end = System.currentTimeMillis();
             Log.d(TAG, "onCreate: " + rel);
             Log.d(TAG, "onCreate: " + (end - start) + "ms");
         }).start();
+
     }
 
     private String 获得待求解字符串() {
@@ -175,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         //设置默认的中心色块默认的颜色，而且无法改变，不可点击
         for (int i = 0; i < textViews.size(); i++) {
             if (i % 9 == 4) {
-                textViews.get(i).setText(colortext[i / 9]);
+                textViews.get(i).setText(String.valueOf(colortext[i / 9]));
             }
         }
     }
@@ -262,10 +299,8 @@ public class MainActivity extends AppCompatActivity {
         int height = bitmap.getHeight();
         int p = 0;
         for (int i = 0; i < 9; i++) {
-            if (i == 4) {
-                //因为中间的颜色不需要改变，是默认的颜色
-                continue;
-            }
+            //因为中间的颜色不需要改变，是默认的颜色
+            if (i == 4) continue;
             switch (i) {
                 case 0:
                     p = bitmap.getPixel(width / 6, height / 6);
@@ -278,9 +313,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case 3:
                     p = bitmap.getPixel(width / 6, height / 2);
-                    break;
-                case 4:
-                    p = bitmap.getPixel(width / 2, height / 2);
                     break;
                 case 5:
                     p = bitmap.getPixel(width * 5 / 6, height / 2);
@@ -295,7 +327,9 @@ public class MainActivity extends AppCompatActivity {
                     p = bitmap.getPixel(width * 5 / 6, height * 5 / 6);
                     break;
             }
-            textViews.get(position * 9 + i).setText(new Pixel(Color.red(p), Color.green(p), Color.blue(p)).getColor());
+            Pixel pixel = new Pixel(Color.red(p), Color.green(p), Color.blue(p));
+            pixel.setColor(getSharedPreferences(FILE.COLOR_CALIBRATION, MODE_PRIVATE));
+            textViews.get(position * 9 + i).setText(pixel.getColor());
         }
     }
 

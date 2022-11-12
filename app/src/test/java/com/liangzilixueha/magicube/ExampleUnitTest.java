@@ -4,6 +4,10 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+
 /**
  * Example local unit test, which will execute on the development machine (host).
  *
@@ -12,6 +16,8 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+        String json="{\"Red\":100,\"Green\":100,\"Blue\":100}";
+        Pixiv pixiv=new Gson().fromJson(json,Pixiv.class);
+        System.out.println(pixiv.toString()+" "+pixiv.Green);
     }
 }

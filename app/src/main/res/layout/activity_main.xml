@@ -6,6 +6,11 @@
     android:orientation="vertical">
 
     <Button
+        android:text="前往颜色校准"
+        android:id="@+id/color_calibration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <Button
         android:id="@+id/solve"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

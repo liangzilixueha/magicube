@@ -39,7 +39,11 @@ android {
 }
 
 dependencies {
+    //Gson
+    implementation 'com.google.code.gson:gson:2.9.0'
     implementation 'com.guolindev.permissionx:permissionx:1.7.1'//申请权限
+    implementation 'com.github.gzu-liyujiang.AndroidPicker:Common:4.0.1'
+    implementation 'com.github.gzu-liyujiang.AndroidPicker:ColorPicker:4.0.1'
 
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
