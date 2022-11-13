@@ -10,15 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Display;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,10 +26,10 @@ import androidx.core.content.FileProvider;
 import com.liangzilixueha.magicube.Solve.CoordCube;
 import com.liangzilixueha.magicube.Solve.Search;
 import com.liangzilixueha.magicube.databinding.ActivityMainBinding;
+import com.liangzilixueha.magicube.solveAnime.Solution;
 import com.permissionx.guolindev.PermissionX;
 
 import java.io.File;
-import java.security.Permission;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,9 +98,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
         binding.solve.setOnClickListener(view -> {
-            Log.e(TAG, "求解");
             String path = 获得待求解字符串();
             Log.e(TAG, path);
+            String solution = new Search().solution(path, 24, 10, false);
+            Log.e(TAG, "解答" + solution);
+            Log.e(TAG, new 字母转中文().全部变换(solution));
         });
         new Thread(() -> {
             new CoordCube();
@@ -126,11 +124,29 @@ public class MainActivity extends AppCompatActivity {
     private String 获得待求解字符串() {
         /*
         按照 U、R、F、D、L、B的顺序，这个是算法的要求
+        上右前下左后
          */
+        Map<Character, Character> map = new HashMap<>();
+        map.put('黄', 'U');
+        map.put('红', 'R');
+        map.put('蓝', 'F');
+        map.put('白', 'D');
+        map.put('橙', 'L');
+        map.put('绿', 'B');
         StringBuilder rel = new StringBuilder();
         for (int i = 0; i < textViews.size(); i++) {
-            rel.append(textViews.get(i).getText());
+            rel.append(map.get(textViews.get(i).getText().toString().charAt(0)));
         }
+        StringBuilder temp = new StringBuilder();
+        for (int i = 0; i < textViews.size(); i++) {
+            if (i % 8 == 0 && i != 0) {
+                temp.append(textViews.get(i).getText().toString()).append(" ");
+            } else {
+                temp.append(textViews.get(i).getText().toString());
+            }
+
+        }
+        Log.e(TAG, temp.toString());
         return rel.toString();
     }
 
@@ -298,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         int p = 0;
+        StringBuilder 测试颜色 = new StringBuilder();
         for (int i = 0; i < 9; i++) {
             //因为中间的颜色不需要改变，是默认的颜色
             if (i == 4) continue;
@@ -329,8 +346,13 @@ public class MainActivity extends AppCompatActivity {
             }
             Pixel pixel = new Pixel(Color.red(p), Color.green(p), Color.blue(p));
             pixel.setColor(getSharedPreferences(FILE.COLOR_CALIBRATION, MODE_PRIVATE));
+            //设置文字
+            测试颜色.append(pixel.getColor()).append(" ");
             textViews.get(position * 9 + i).setText(pixel.getColor());
+            textViews.get(position * 9 + i)
+                    .setBackgroundColor(Color.rgb(Color.red(p), Color.green(p), Color.blue(p)));
         }
+        Log.e(TAG, "当前颜色识别：" + 测试颜色.toString());
     }
 
     public static String getRealFilePathFromUri(final Context context, final Uri uri) {
