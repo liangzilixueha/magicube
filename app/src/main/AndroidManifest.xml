@@ -3,8 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.liangzilixueha.magicube">
 
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -17,7 +19,7 @@
         android:theme="@style/Theme.Magicube"
         tools:targetApi="31">
         <activity
-            android:name=".solveAnime.Solution"
+            android:name=".Show"
             android:exported="false" />
         <activity
             android:name=".ColorCalibration"

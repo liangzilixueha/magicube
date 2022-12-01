@@ -1,0 +1,653 @@
+<html>
+
+<head>
+    <title>第一个three.js文件_WebGL三维场景</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            /* 隐藏body窗口区域滚动条 */
+        }
+    </style>
+    <!--引入three.js三维引擎-->
+    <script src="three.js"></script>
+    <script src="OrbitControls.js"></script>
+    <script src="jquery-3.6.1.min.js"></script>
+    <style>
+        #start {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+        }
+
+        #input {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            width: 350px;
+            transform: translate(-50%, -50%);
+            z-index: 999;
+        }
+    </style>
+    <script>
+        var fun = [];
+        $(function () {
+            $("#start").click(function () {
+                fun = []
+                字符串转换()
+                var i = 0
+                var d_rotate = 45
+                console.log(fun);
+                var time = setInterval(function () {
+                    var num = parseInt(i / d_rotate);
+                    fun[num % fun.length](d_rotate / 45);
+                    i++
+                    if (i >= d_rotate * fun.length) {
+                        clearInterval(time)
+                        i = 0
+                        //清空fun
+                        fun = []
+                    }
+                }, 10)
+            })
+            function 字符串转换() {
+                console.log("字符串转换")
+                //获取输入的值
+                var value = $("#input").val();
+                //以空格分割字符串
+                var arr = value.split(" ");
+                //遍历数组
+                for (var i = 0; i < arr.length; i++) {
+                    //获取每个字符
+                    var d_rotate = 45
+                    var char = arr[i];
+                    //判断字符
+                    switch (char) {
+                        case "F":
+                            fun.push(F)
+                            break;
+                        case "F'":
+                            fun.push(F_)
+                            break;
+                        case "F2":
+                            fun.push(F)
+                            fun.push(F)
+                            break;
+                        case "L":
+                            fun.push(L)
+                            break;
+                        case "L'":
+                            fun.push(L_)
+                            break;
+                        case "L2":
+                            fun.push(L)
+                            fun.push(L)
+                            break;
+                        case "R":
+                            fun.push(R)
+                            break;
+                        case "R'":
+                            fun.push(R_)
+                            break;
+                        case "R2":
+                            fun.push(R)
+                            fun.push(R)
+                            break;
+                        case "B":
+                            fun.push(B)
+                            break;
+                        case "B'":
+                            fun.push(B_)
+                            break;
+                        case "B2":
+                            fun.push(B)
+                            fun.push(B)
+                            break;
+                        case "U":
+                            fun.push(U)
+                            break;
+                        case "U'":
+                            fun.push(U_)
+                            break;
+                        case "U2":
+                            fun.push(U)
+                            fun.push(U)
+                            break;
+                        case "D":
+                            fun.push(D)
+                            break;
+                        case "D'":
+                            fun.push(D_)
+                            break;
+                        case "D2":
+                            fun.push(D)
+                            fun.push(D)
+                            break;
+                    }
+                }
+            }
+        })
+    </script>
+</head>
+
+<body>
+    <button id="start">
+        开启动画
+    </button>
+    <input type="text" id="input">
+    <script>
+        //此js有两个作用
+        //1.向量类
+        //2.对颜色面的显示
+
+        //三维基本向量
+        class Vector3 {
+            constructor(x, y, z) {
+                this.x = x
+                this.y = y
+                this.z = z
+            }
+            copy(v) {
+                this.x = v.x
+                this.y = v.y
+                this.z = v.z
+            }
+            rotate(vector, angle) {
+                //以vector为轴旋转angle角度
+                //先将vector转换为单位向量
+                var len = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z)
+                var unitVector = new Vector3(vector.x / len, vector.y / len, vector.z / len)
+                //计算旋转矩阵
+                var cos = Math.cos(angle)
+                var sin = Math.sin(angle)
+                var matrix = [
+                    [cos + unitVector.x * unitVector.x * (1 - cos), unitVector.x * unitVector.y * (1 - cos) - unitVector.z * sin, unitVector.x * unitVector.z * (1 - cos) + unitVector.y * sin],
+                    [unitVector.y * unitVector.x * (1 - cos) + unitVector.z * sin, cos + unitVector.y * unitVector.y * (1 - cos), unitVector.y * unitVector.z * (1 - cos) - unitVector.x * sin],
+                    [unitVector.z * unitVector.x * (1 - cos) - unitVector.y * sin, unitVector.z * unitVector.y * (1 - cos) + unitVector.x * sin, cos + unitVector.z * unitVector.z * (1 - cos)]
+                ]
+                //计算旋转后的坐标
+                var x = this.x * matrix[0][0] + this.y * matrix[0][1] + this.z * matrix[0][2]
+                var y = this.x * matrix[1][0] + this.y * matrix[1][1] + this.z * matrix[1][2]
+                var z = this.x * matrix[2][0] + this.y * matrix[2][1] + this.z * matrix[2][2]
+                this.x = x;
+                this.y = y;
+                this.z = z;
+            }
+        }
+        //初始化
+        function setBlue() {
+            var geometry;
+            var start_x = -100;
+            var start_y = -100;
+            var start_z = 160;
+            var d_x = 105;
+            var d_y = 105;
+            var d_z = 0;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    geometry = new THREE.BoxGeometry(100, 100, 1); //创建一个立方体几何对象Geometry
+                    face_postion.push(new Vector3(start_x + i * d_x, start_y + j * d_y, start_z));
+                    face.push(geometry)
+                }
+            }
+            var material = new THREE.MeshPhongMaterial({
+                color: 0x0000ff,
+                opacity: 0.7,
+                transparent: true,
+                specular: 0x4488ee,
+                side: 2,
+                shininess: 12
+            }); //材质对象Material
+            for (let index = 0; index < face.length; index++) {
+                const element = face[index];
+                var mesh = new THREE.Mesh(element, material); //网格模型对象Mesh
+                scene.add(mesh); //网格模型添加到场景中
+            }
+        }
+        function setGreen() {
+            var geometry;
+            var start_x = -100;
+            var start_y = -100;
+            var start_z = -150;
+            var d_x = 105;
+            var d_y = 105;
+            var d_z = 0;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    geometry = new THREE.BoxGeometry(100, 100, 1); //创建一个立方体几何对象Geometry
+                    back_postion.push(new Vector3(start_x + i * d_x, start_y + j * d_y, start_z));
+                    back.push(geometry)
+                }
+            }
+            var material = new THREE.MeshPhongMaterial({
+                color: 0x008000,
+                opacity: 0.7,
+                transparent: true,
+                specular: 0x4488ee,
+                side: 2,
+                shininess: 12
+            }); //材质对象Material
+            for (let index = 0; index < back.length; index++) {
+                const element = back[index];
+                var mesh = new THREE.Mesh(element, material); //网格模型对象Mesh
+                scene.add(mesh); //网格模型添加到场景中
+            }
+        }
+        function setYellow() {
+            var geometry;
+            var start_x = -100;
+            var start_y = 160;
+            var start_z = -100;
+            var d_x = 105;
+            var d_y = 0;
+            var d_z = 105;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    geometry = new THREE.BoxGeometry(100, 100, 1); //创建一个立方体几何对象Geometry
+                    geometry.rotateX(Math.PI / 2);
+                    up_postion.push(new Vector3(start_x + i * d_x, start_y, start_z + j * d_z));
+                    up.push(geometry)
+                }
+            }
+            var material = new THREE.MeshLambertMaterial({
+                color: 0xffff00,
+                opacity: 1.0,
+                transparent: false,
+                specular: 0x4488ee,
+                side: 2,
+                shininess: 12
+            }); //材质对象Material
+            for (let index = 0; index < up.length; index++) {
+                const element = up[index];
+                var mesh = new THREE.Mesh(element, material); //网格模型对象Mesh
+                scene.add(mesh); //网格模型添加到场景中
+            }
+        }
+        function setWhite() {
+            var geometry;
+            var start_x = -100;
+            var start_y = -150;
+            var start_z = -100;
+            var d_x = 105;
+            var d_y = 0;
+            var d_z = 105;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    geometry = new THREE.BoxGeometry(100, 100, 1); //创建一个立方体几何对象Geometry
+                    geometry.rotateX(Math.PI / 2);
+                    down_postion.push(new Vector3(start_x + i * d_x, start_y, start_z + j * d_z));
+                    down.push(geometry)
+                }
+            }
+            var material = new THREE.MeshPhongMaterial({
+                color: 0xffffff,
+                opacity: 1.0,
+                transparent: true,
+                specular: 0x4488ee,
+                side: 2,
+                shininess: 12
+            }); //材质对象Material
+            for (let index = 0; index < down.length; index++) {
+                const element = down[index];
+                var mesh = new THREE.Mesh(element, material); //网格模型对象Mesh
+                scene.add(mesh); //网格模型添加到场景中
+            }
+        }
+        function setOrange() {
+            const side = left
+            const side_postion = left_postion
+            var geometry;
+            var start_x = -150;
+            var start_y = -100;
+            var start_z = -100;
+            var d_x = 105;
+            var d_y = 105;
+            var d_z = 105;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    geometry = new THREE.BoxGeometry(100, 100, 1); //创建一个立方体几何对象Geometry
+                    geometry.rotateY(Math.PI / 2);
+                    side_postion.push(new Vector3(start_x, start_y + i * d_y, start_z + j * d_z));
+                    side.push(geometry)
+                }
+            }
+            var material = new THREE.MeshPhongMaterial({
+                color: 0xFFA500,
+                opacity: 1.0,
+                transparent: true,
+                specular: 0x4488ee,
+                side: 2,
+                shininess: 12
+            }); //材质对象Material
+            for (let index = 0; index < side.length; index++) {
+                const element = side[index];
+                var mesh = new THREE.Mesh(element, material); //网格模型对象Mesh
+                scene.add(mesh); //网格模型添加到场景中
+            }
+        }
+        function setRed() {
+            const side = right
+            const side_postion = right_postion
+            var geometry;
+            var start_x = 160;
+            var start_y = -100;
+            var start_z = -100;
+            var d_x = 105;
+            var d_y = 105;
+            var d_z = 105;
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 3; j++) {
+                    geometry = new THREE.BoxGeometry(100, 100, 1); //创建一个立方体几何对象Geometry
+                    geometry.rotateY(Math.PI / 2);
+                    side_postion.push(new Vector3(start_x, start_y + i * d_y, start_z + j * d_z));
+                    side.push(geometry)
+                }
+            }
+            var material = new THREE.MeshPhongMaterial({
+                color: 0xFF0000,
+                opacity: 1.0,
+                transparent: true,
+                specular: 0x4488ee,
+                side: 2,
+                shininess: 12
+            }); //材质对象Material
+            for (let index = 0; index < side.length; index++) {
+                const element = side[index];
+                var mesh = new THREE.Mesh(element, material); //网格模型对象Mesh
+                scene.add(mesh); //网格模型添加到场景中
+            }
+        }
+    </script>
+    <script>
+        //此js是主函数
+        var scene = new THREE.Scene();
+        var axisHelper = new THREE.AxisHelper(500);
+        scene.add(axisHelper);
+
+        var face = new Array()
+        var face_postion = new Array()
+        var back = new Array()
+        var back_postion = new Array()
+        var up = new Array()
+        var up_postion = new Array()
+        var down = new Array()
+        var down_postion = new Array()
+        var left = new Array()
+        var left_postion = new Array()
+        var right = new Array()
+        var right_postion = new Array()
+        setBlue()
+        setGreen()
+        setYellow()
+        setWhite()
+        setOrange()
+        setRed()
+        //点光源
+        var point = new THREE.PointLight(0x000000);
+        point.position.set(300, 300, 300); //点光源位置
+        scene.add(point); //点光源添加到场景中
+        //环境光
+        var ambient = new THREE.AmbientLight(0xffffff);
+        scene.add(ambient);
+        /**
+         * 相机设置
+         */
+        var width = window.innerWidth; //窗口宽度
+        var height = window.innerHeight; //窗口高度
+        var k = width / height; //窗口宽高比
+        var s = 300; //三维场景显示范围控制系数，系数越大，显示的范围越大
+        //创建相机对象
+        var camera = new THREE.OrthographicCamera(-s * k, s * k, s, -s, 1, 1000);
+        camera.position.set(200, 300, 200); //设置相机位置
+        camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
+        /**
+         * 创建渲染器对象
+         */
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(width, height);//设置渲染区域尺寸
+        renderer.setClearColor(0x808080, 1); //设置背景颜色
+        document.body.appendChild(renderer.domElement); //body元素中插入canvas对象
+        //执行渲染操作   指定场景、相机作为参数
+        renderer.render(scene, camera);
+        let T0 = new Date()
+        function render() {
+            let T1 = new Date();//本次时间
+            let t = T1 - T0;//时间差
+            T0 = T1;//把本次时间赋值给上次时间
+            renderer.render(scene, camera);//执行渲染操作
+            for (let index = 0; index < face.length; index++) {
+                const element = face[index];
+                var position = face_postion[index]
+                element.center()
+                element.translate(position.x, position.y, position.z);
+            }
+            for (let index = 0; index < back.length; index++) {
+                const element = back[index];
+                var position = back_postion[index]
+                element.center()
+                element.translate(position.x, position.y, position.z);
+            }
+            for (let index = 0; index < up.length; index++) {
+                const element = up[index];
+                var position = up_postion[index]
+                element.center()
+                element.translate(position.x, position.y, position.z);
+            }
+            for (let index = 0; index < down.length; index++) {
+                const element = down[index];
+                var position = down_postion[index]
+                element.center()
+                element.translate(position.x, position.y, position.z);
+            }
+            for (let index = 0; index < left.length; index++) {
+                const element = left[index];
+                var position = left_postion[index]
+                element.center()
+                element.translate(position.x, position.y, position.z);
+            }
+            for (let index = 0; index < right.length; index++) {
+                const element = right[index];
+                var position = right_postion[index]
+                element.center()
+                element.translate(position.x, position.y, position.z);
+            }
+            requestAnimationFrame(render);//请求再次执行渲染函数render
+        }
+        render()
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);//创建控件对象
+
+
+    </script>
+
+    <script>
+        //此js是检测按钮，然后做出对于的旋转
+        document.addEventListener('keydown', function (event) {
+            console.log(event.keyCode);
+            var i = 45
+            if (event.keyCode == 76) {
+                L(i)
+            }
+            if (event.keyCode == 82) {
+                R(i)
+            }
+            if (event.keyCode == 70) {
+                F(i)
+            }
+            if (event.keyCode == 85) {
+                U(i)
+            }
+            if (event.keyCode == 68) {
+                D(i)
+            }
+            if (event.keyCode == 66) {
+                B(i)
+            }
+        })
+    </script>
+
+    <script>
+        //此js是对巨量的旋转代码进行统一格式化
+
+        //1.L 旋转
+        function L(i) {
+            var d_rotate = Math.PI / 90 * i;
+            const temp = [right, left, up, down, face, back];
+            const temp_position = [
+                right_postion, left_postion, up_postion,
+                down_postion, face_postion, back_postion
+            ]
+            for (let index = 0; index < 6; index++) {
+                const element = temp[index]
+                for (let j = 0; j < 9; j++) {
+                    const element1 = element[j];
+                    if (temp_position[index][j].x < - 90) {
+                        element1.rotateX(d_rotate)
+                        temp_position[index][j].y -= 5
+                        temp_position[index][j].z -= 5
+                        temp_position[index][j].rotate(new Vector3(1, 0, 0), d_rotate)
+                        temp_position[index][j].y += 5
+                        temp_position[index][j].z += 5
+                    }
+                }
+            }
+        }
+        //2.R 旋转
+        function R(i) {
+            var d_rotate = Math.PI / 90 * i;
+            const temp = [right, left, up, down, face, back];
+            const temp_position = [
+                right_postion, left_postion, up_postion,
+                down_postion, face_postion, back_postion
+            ]
+            for (let index = 0; index < 6; index++) {
+                const element = temp[index]
+                for (let j = 0; j < 9; j++) {
+                    const element1 = element[j];
+                    if (temp_position[index][j].x > 90) {
+                        temp_position[index][j].y -= 5
+                        temp_position[index][j].z -= 5
+                        element1.rotateX(-d_rotate)
+                        temp_position[index][j].rotate(new Vector3(-1, 0, 0), d_rotate)
+                        temp_position[index][j].y += 5
+                        temp_position[index][j].z += 5
+                    }
+                }
+            }
+        }
+        //3.F 旋转
+        function F(i) {
+            var d_rotate = Math.PI / 90 * i;
+            const temp = [right, left, up, down, face, back];
+            const temp_position = [
+                right_postion, left_postion, up_postion,
+                down_postion, face_postion, back_postion
+            ]
+            for (let index = 0; index < 6; index++) {
+                const element = temp[index]
+                for (let j = 0; j < 9; j++) {
+                    const element1 = element[j];
+                    if (temp_position[index][j].z > 90) {
+                        temp_position[index][j].x -= 5
+                        temp_position[index][j].y -= 5
+                        element1.rotateZ(-d_rotate)
+                        temp_position[index][j].rotate(new Vector3(0, 0, -1), d_rotate)
+                        temp_position[index][j].x += 5
+                        temp_position[index][j].y += 5
+                    }
+                }
+            }
+        }
+        //4.U 旋转
+        function U(i) {
+            var d_rotate = Math.PI / 90 * i;
+            const temp = [right, left, up, down, face, back];
+            const temp_position = [
+                right_postion, left_postion, up_postion,
+                down_postion, face_postion, back_postion
+            ]
+            for (let index = 0; index < 6; index++) {
+                const element = temp[index]
+                for (let j = 0; j < 9; j++) {
+                    const element1 = element[j];
+                    if (temp_position[index][j].y > 90) {
+                        temp_position[index][j].x -= 5
+                        temp_position[index][j].z -= 5
+                        element1.rotateY(-d_rotate)
+                        temp_position[index][j].rotate(new Vector3(0, -1, 0), d_rotate)
+                        temp_position[index][j].x += 5
+                        temp_position[index][j].z += 5
+                    }
+                }
+            }
+        }
+        //5.D 旋转
+        function D(i) {
+            var d_rotate = Math.PI / 90 * i;
+            const temp = [right, left, up, down, face, back];
+            const temp_position = [
+                right_postion, left_postion, up_postion,
+                down_postion, face_postion, back_postion
+            ]
+            for (let index = 0; index < 6; index++) {
+                const element = temp[index]
+                for (let j = 0; j < 9; j++) {
+                    const element1 = element[j];
+                    if (temp_position[index][j].y < -90) {
+                        temp_position[index][j].x -= 5
+                        temp_position[index][j].z -= 5
+                        element1.rotateY(d_rotate)
+                        temp_position[index][j].rotate(new Vector3(0, 1, 0), d_rotate)
+                        temp_position[index][j].x += 5
+                        temp_position[index][j].z += 5
+                    }
+                }
+            }
+        }
+        //6.B 旋转
+        function B(i) {
+            var d_rotate = Math.PI / 90 * i;
+            const temp = [right, left, up, down, face, back];
+            const temp_position = [
+                right_postion, left_postion, up_postion,
+                down_postion, face_postion, back_postion
+            ]
+            for (let index = 0; index < 6; index++) {
+                const element = temp[index]
+                for (let j = 0; j < 9; j++) {
+                    const element1 = element[j];
+                    if (temp_position[index][j].z < -90) {
+                        temp_position[index][j].x -= 5
+                        temp_position[index][j].y -= 5
+                        element1.rotateZ(d_rotate)
+                        temp_position[index][j].rotate(new Vector3(0, 0, 1), d_rotate)
+                        temp_position[index][j].x += 5
+                        temp_position[index][j].y += 5
+                    }
+                }
+            }
+        }
+
+        function R_(i) {
+            R(-i)
+        }
+        function L_(i) {
+            L(-i)
+        }
+        function F_(i) {
+            F(-i)
+        }
+        function B_(i) {
+            B(-i)
+        }
+        function U_(i) {
+            U(-i)
+        }
+        function D_(i) {
+            D(-i)
+        }
+    </script>
+</body>
+
+</html>

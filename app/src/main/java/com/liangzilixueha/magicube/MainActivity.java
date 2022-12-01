@@ -26,7 +26,6 @@ import androidx.core.content.FileProvider;
 import com.liangzilixueha.magicube.Solve.CoordCube;
 import com.liangzilixueha.magicube.Solve.Search;
 import com.liangzilixueha.magicube.databinding.ActivityMainBinding;
-import com.liangzilixueha.magicube.solveAnime.Solution;
 import com.permissionx.guolindev.PermissionX;
 
 import java.io.File;
@@ -93,6 +92,9 @@ public class MainActivity extends AppCompatActivity {
                 gotoCamera();
             });
         }
+        binding.show.setOnClickListener(view -> {
+            startActivity(new Intent(MainActivity.this, Show.class));
+        });
         binding.colorCalibration.setOnClickListener(view -> {
             Intent intent = new Intent(MainActivity.this, ColorCalibration.class);
             startActivity(intent);
@@ -102,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, path);
             String solution = new Search().solution(path, 24, 10, false);
             Log.e(TAG, "解答" + solution);
+            //将solution拷贝到剪切板
+            android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData mClipData = android.content.ClipData.newPlainText("Label", solution);
+            cm.setPrimaryClip(mClipData);
+            Toast.makeText(MainActivity.this, "已复制到剪切板", Toast.LENGTH_SHORT).show();
             Log.e(TAG, new 字母转中文().全部变换(solution));
         });
         new Thread(() -> {
@@ -241,7 +248,8 @@ public class MainActivity extends AppCompatActivity {
         PermissionX.init(this)
                 .permissions(Manifest.permission.WRITE_EXTERNAL_STORAGE
                         , Manifest.permission.READ_EXTERNAL_STORAGE
-                        , Manifest.permission.CAMERA)
+                        , Manifest.permission.CAMERA
+                        , Manifest.permission.INTERNET)
                 .onForwardToSettings((scope, deniedList) -> {
                     scope.showForwardToSettingsDialog(deniedList, "请在设置中打开相机权限"
                             , "确定"
